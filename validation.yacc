@@ -1,40 +1,45 @@
 %{
 #include <stdio.h>
-#include <string.h
+#include <string.h>
 
 extern int yylex();
 void yyerror(char *);
 %}
 
-%token WHILE DO ENDWHILE 
-IF THEN ELSE ENDIF 
+%token WHILE DO  ENDWHILE
+IF THEN ELSE ENDIF
 ADD MINUS
-NUM VAR 
-AND OR 
-NOTEQ EQUAL LTHAN LTOREQ GTHAN GTOREQ ASIGN 
+NUM VAR
+ASIGN
+AND OR
+NOTEQ EQUAL LTHAN LTOREQ GTHAN GTOREQ
+SEMI
+RETURN
+JUNK
 
 %%
 
 prog: stmts
+stmts: stmt endop | stmt stmts
+stmt: val op | val endop
+val: VAR | NUM
+op: ADD | MINUS | ASIGN
+endop: SEMI
 
-stmts: stmt | stmt stmt
-
-stmt: VAR EQUAL NUM op NUM
-
-cstmt: VAR compare VAR | VAR compare NUM | NUM compare VAR
-
-compare: EQUAL | NOTEQ | LTHAN | LTOREQ | GTHAN | GTOREQ
-
-op: ADD | MINUS 
-
-wstmt: WHILE cstmt DO
+/*cdtnl: NOTEQ | EQUAL | LTHAN | LTOREQ | GTHAN | GTOREQ
+cdtn: val cdtnl val 
+scndcdtn: AND | OR
+cdtnstmt: cdtn | scndcdtn cdtn
+cdtnstmts: cdtnstmt | cdtnstmt cdtnstmt
+wstmt: WHILE cdtn DO | cdtnstmts DO*/
 
 %%
+
 int main()
 {
   yyparse();
 }
 void yyerror (char *msg)
 {
-  printf ("Oops, syntax error!!!!!!\n");
+  printf ("\n%s\n", msg);
 }
