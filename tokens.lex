@@ -34,7 +34,6 @@ extern int lineno;
 ";" {printf("SEMI "); return SEMI;}
 
 " " ;
-^\n ;
 
 \n {printf("RETURN \n"); lineno++; return RETURN; }
 
