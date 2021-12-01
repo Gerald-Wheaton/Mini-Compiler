@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "y.tab.h"
-extern int numval;
+extern int lineno;
 %}
 %%
 
@@ -35,7 +35,7 @@ extern int numval;
 
 " " ;
 
-\n {printf("RETURN "); return RETURN;}
+\n {printf("RETURN \n"); lineno++; return RETURN; }
 
 . {printf("JUNK "); return JUNK;}
 

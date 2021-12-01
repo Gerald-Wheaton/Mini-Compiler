@@ -3,6 +3,8 @@
 #include <string.h>
 extern int yylex();
 void yyerror(char *);
+
+int lineno = 1;
 %}
 
 %token WHILE DO ENDWHILE
@@ -18,29 +20,40 @@ JUNK
 
 %%
 
-prog: stmts
-stmts: stmt eoline | stmt stmts
-stmt: val op 
-| val eoline
-| ifstmt
-| wstmt
+/* print success after returns??*/
+
+prog: blocks | stmts
+blocks: block | block blocks | nwln block
+block: cdtnl | wxpress | stmts cdtnl | stmts wxpress
+stmts: stmt | stmts stmt
+stmt: val op | val endop | err
+err: JUNK
 
 val: VAR | NUM 
 op: ADD | MINUS | ASIGN 
-eoline: RETURN | SEMI RETURN
+nwln: RETURN
+endop: SEMI RETURN
 
-cdtnl: EQUAL | NOTEQ | LTHAN | LTOREQ | GTHAN | GTOREQ 
-cdtn: val cdtnl val 
-scndcdtn: AND | OR 
-cdtnstmt: cdtn | scndcdtn cdtn 
-cdtnstmts: cdtnstmt | cdtnstmt cdtnstmt 
+equalities: EQUAL | NOTEQ | LTHAN | LTOREQ | GTHAN | GTOREQ 
+lgcl: AND | OR 
+eqxpress: val equalities val
+eqstmt: eqxpress | lgcl eqxpress 
+eqstmts: eqstmt | eqstmt eqstmts 
 
-if: IF cdtnstmts THEN 
-else: ELSE stmts
-ifstmt: if stmts ENDIF RETURN | if stmts else ENDIF RETURN
+if: IF eqstmts THEN nwln
+ifexpress: if stmts
+else: ELSE nwln
+elsexpress: else stmts
 
-whilecdtn: WHILE cdtnstmts DO 
-wstmt: whilecdtn stmts ENDWHILE RETURN | whilecdtn ifstmt ENDWHILE RETURN
+ifstmt: ifexpress | ELSE ifexpress
+ifstmts: ifstmt | ifstmts ifstmt
+
+cdtnl: ifstmts ENDIF endop | ifstmts elsexpress ENDIF endop
+
+//TODOs: handle nested ifs... I think the current while handles nested whiles but double check that
+
+while: WHILE eqstmts DO nwln
+wxpress: while stmts ENDWHILE endop | while cdtnl ENDWHILE endop | while stmts cdtnl ENDWHILE endop
 
 %%
 
@@ -50,6 +63,5 @@ int main()
 }
 void yyerror (char *msg)
 {
-  extern int yylineno;
-  fprintf( stderr, "syntax error in line %d \n", yylineno); 
+  fprintf( stderr, "%s: line %d \n", msg, lineno); 
 }
