@@ -36,24 +36,27 @@ endop: SEMI RETURN
 
 equalities: EQUAL | NOTEQ | LTHAN | LTOREQ | GTHAN | GTOREQ 
 lgcl: AND | OR 
-eqexpress: val equalities val
-eqstmt: eqexpress | lgcl eqexpress 
+eqxpress: val equalities val
+eqstmt: eqxpress | lgcl eqxpress 
 eqstmts: eqstmt | eqstmt eqstmts 
 
 if: IF eqstmts THEN nwln
 ifexpress: if stmts
 else: ELSE nwln
-elseexpress: else stmts
+elsexpress: else stmts
 
 ifstmt: ifexpress | ELSE ifexpress
 ifstmts: ifstmt | ifstmts ifstmt
 
-cdtnl: ifstmts ENDIF endop | ifstmts elseexpress ENDIF endop
+cdtnl: ifstmts ENDIF endop | ifstmts elsexpress ENDIF endop
 
 //TODOs: handle nested ifs... I think the current while handles nested whiles but double check that
 
 while: WHILE eqstmts DO nwln
-wstmt: while stmts ENDWHILE endop | while cdtnl ENDWHILE endop | while stmts cdtnl ENDWHILE endop
+whilecontent: stmts | cdtnl | wxpress
+whilenest: while whilecontent ENDWHILE | whilenest whilecontent
+wxpress: /* while stmts*/whilenest endop | /*while cdtnl*/whilenest ENDWHILE endop | /*while stmts cdtnl*/whilenest ENDWHILE endop
+wstmt: wxpress | wstmt wxpress 
 
 %%
 

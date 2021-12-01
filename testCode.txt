@@ -1,6 +1,5 @@
 total = 0;
 fib = 5;
-
 while fib > 0 do
    total = total + fib;
    fib = fib - 1;
