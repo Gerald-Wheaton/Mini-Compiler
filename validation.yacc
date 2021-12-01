@@ -24,7 +24,7 @@ JUNK
 
 prog: blocks | stmts
 blocks: block | block blocks | nwln block
-block: cdtnl | wstmt | stmts cdtnl | stmts wstmt
+block: cdtnl | wxpress | stmts cdtnl | stmts wxpress
 stmts: stmt | stmts stmt
 stmt: val op | val endop | err
 err: JUNK
@@ -53,10 +53,7 @@ cdtnl: ifstmts ENDIF endop | ifstmts elsexpress ENDIF endop
 //TODOs: handle nested ifs... I think the current while handles nested whiles but double check that
 
 while: WHILE eqstmts DO nwln
-whilecontent: stmts | cdtnl | wxpress
-whilenest: while whilecontent ENDWHILE | whilenest whilecontent
-wxpress: /* while stmts*/whilenest endop | /*while cdtnl*/whilenest ENDWHILE endop | /*while stmts cdtnl*/whilenest ENDWHILE endop
-wstmt: wxpress | wstmt wxpress 
+wxpress: while stmts ENDWHILE endop | while cdtnl ENDWHILE endop | while stmts cdtnl ENDWHILE endop
 
 %%
 
