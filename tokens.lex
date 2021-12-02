@@ -2,22 +2,28 @@
 #include <stdio.h>
 #include <string.h>
 #include "y.tab.h"
+
 extern int lineno;
+extern int numval;
+extern int wnum;
+extern int ifnum;
+extern char varname[];
+
 %}
 %%
 
-"while" return WHILE;
+"while" {wnum++; return WHILE;}
 "do" return DO;
-"endwhile" return ENDWHILE;
+"endwhile" {wnum--; return ENDWHILE;}
 
-"if" return IF;
+"if" {ifnum++; return IF;}
 "then" return THEN;
 "else" return ELSE;
-"endif" return ENDIF;
+"endif" {ifnum--; return ENDIF;}
 
-[0-9]+ return NUM;
+[0-9]+ {numval=atoi(yytext); return NUM;}
 
-[a-zA-Z]+ return VAR;
+[a-zA-Z]+ {strcpy(varname, yytext); return VAR;}
 
 "&&" return AND;
 "||" return OR;

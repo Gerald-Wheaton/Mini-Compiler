@@ -1,7 +1,2 @@
-while a < b do
-   if foo > bar then
-      bob = fred + 99;
-   else
-      bob = 37;
-   endif;
-endwhile;
+boil = 1;
+steve = 8 + 10;

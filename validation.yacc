@@ -5,6 +5,13 @@ extern int yylex();
 void yyerror(char *);
 
 int lineno = 1;
+int numval = 0;
+int wnum = 0;
+int ifnum = 0;
+
+char varname[20];
+char destination[20];
+
 %}
 
 %token WHILE DO ENDWHILE
@@ -28,13 +35,19 @@ block: mexpr | cdtnl | wstmt
 //----------------------------------------------------------------
 
 mexprs: mexpr | mexprs mexpr
-mexpr: asign stmts endop {printf("valid assignment \n");}
-asign: val ASIGN
+mexpr: asign stmts endop {printf("MOV %s R1\n", varname);}
+asign: VAR ASIGN
 stmts: stmt | stmts stmt
-stmt: val op | val
+stmt: ADD val {printf("ADD R1, %s\n", varname);} | 
+  MINUS val {printf("SUB R1, %s\n", varname);} | 
+  val {printf("MOV R1, %s\n", varname);} | 
+  ADD num {printf("ADD R1, %d\n", numval);} | 
+  MINUS num {printf("SUB R1, %d\n", numval);} | 
+  num {printf("MOV R1, %d\n", numval);}
 
-val: VAR | NUM 
-op: ADD | MINUS
+num: NUM
+val: VAR //| NUM 
+//op: ADD | MINUS
 nwln: RETURN
 endop: SEMI RETURN
 
@@ -43,7 +56,7 @@ endop: SEMI RETURN
 
 equalities: EQUAL | NOTEQ | LTHAN | LTOREQ | GTHAN | GTOREQ 
 lgcl: AND | OR 
-eqxpress: val equalities val
+eqxpress: val equalities val | val equalities num
 eqstmt: eqxpress | lgcl eqxpress 
 eqstmts: eqstmt | eqstmts eqstmt
 
