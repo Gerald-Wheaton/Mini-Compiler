@@ -1,5 +1,7 @@
-if boil == 1 then
-   steve = 8 + 10;
+if bob < 5 then
+   h = 3 + 3;
+else if h == 9 then
+   gh = 4;
 else
-   j = 4;
+   r = 3;
 endif;

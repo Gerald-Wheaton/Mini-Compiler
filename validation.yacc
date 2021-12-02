@@ -31,7 +31,7 @@ JUNK
 
 prog: blocks
 blocks: block | blocks block
-block: mexpr | cdtnl {printf("\tend\n");} | wstmt
+block: mexpr | cdtnl {printf("\tendif:\n");} | wstmt {printf("\tendw:\n");}
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
@@ -65,22 +65,23 @@ eqstmt: eqxpress
 
 if: IF val {printf("MOV R8 %s\n", varname);}
 ifparams: if eqstmt THEN nwln {printf("CMP R7\n"); printf("%s else%d\n", branch, ifnum); currentif = ifnum;}
-ifexpress: ifparams mexprs //{printf("JMP end%d\n", currentif);}
+ifexpress: ifparams mexprs {printf("\telse%d: \n", currentif);}
 
 endelse: ELSE nwln 
-elsexpress: endelse mexprs //{printf("JMP end%d\n", currentif);}
+elsexpress: endelse mexprs {printf("\telse%d: \n", currentif);}
 
-ifstmt: ifexpress {printf("\telse%d: \n", currentif);} /*{printf("JMP end%d\n", currentif);}*/ | ELSE ifexpress {printf("\telse%d: \n", currentif);}//{printf("%s else%d\n", branch, ifnum);}
+ifstmt: ifexpress | ELSE ifexpress 
 ifstmts: ifstmt | ifstmts ifstmt
 
-cdtnl: ifstmts ENDIF endop
-| ifstmts elsexpress ENDIF endop 
+cdtnl: ifstmts ENDIF endop | ifstmts elsexpress ENDIF endop 
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 
-while: WHILE eqstmt DO nwln
-wstmt: while blocks ENDWHILE endop
+while: WHILE val {printf("\twtop: "); printf("MOV R8 %s\n", varname);}
+whileparams: while eqstmt DO nwln {printf("CMP R7\n"); printf("%s end%d\n", branch, wnum);}
+wexpress: whileparams blocks {printf("JMP wtop\n");}
+wstmt: wexpress ENDWHILE endop
 
 %%
 
