@@ -2,31 +2,40 @@
 #include <stdio.h>
 #include <string.h>
 #include "y.tab.h"
+
 extern int lineno;
+extern int numval;
+extern int wnum;
+extern int ifnum;
+extern int elsenum;
+extern int currentif;
+
+extern char varname[];
+extern char branch[];
+extern char errinput[];
+
 %}
 %%
 
-"while" return WHILE;
+"while" {wnum++; return WHILE;}
 "do" return DO;
-"endwhile" return ENDWHILE;
+"endwhile" {wnum--; return ENDWHILE;}
 
-"if" return IF;
+"if" {ifnum++; return IF;}
 "then" return THEN;
-"else" return ELSE;
-"endif" return ENDIF;
+"else" {elsenum++; return ELSE;}
+"endif" {return ENDIF;}
 
-[0-9]+ return NUM;
+[0-9]+ {numval=atoi(yytext); return NUM;}
 
-[a-zA-Z]+ return VAR;
+[a-zA-Z]+ {strcpy(varname, yytext); return VAR;}
 
-"&&" return AND;
-"||" return OR;
-"!=" return NOTEQ;
-"==" return EQUAL;
-"<"  return LTHAN;
-"<=" return LTOREQ;
-">"  return GTHAN;
-">=" return GTOREQ;
+"!=" {strcpy(branch, "BNE"); return NOTEQ;}
+"==" {strcpy(branch, "BEQ"); return EQUAL;}
+"<"  {strcpy(branch, "BLT"); return LTHAN;}
+"<=" {strcpy(branch, "BLE"); return LTOREQ;}
+">"  {strcpy(branch, "BGT"); return GTHAN;}
+">=" {strcpy(branch, "GTE"); return GTOREQ;}
 
 "=" return ASIGN;
 "+" return ADD;
@@ -37,6 +46,6 @@ extern int lineno;
 
 \n {lineno++; return RETURN; }
 
-. return JUNK;
+. {strcpy(errinput, yytext); return JUNK;}
 
 %%
