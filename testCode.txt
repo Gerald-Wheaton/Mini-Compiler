@@ -1,7 +1,7 @@
 if bob < 5 then
-   h = 3 + 3;
-else if h == 9 then
-   gh = 4;
+   m = 7;
+else if s == 3 then
+   ge = 32;
 else
    r = 3;
 endif;

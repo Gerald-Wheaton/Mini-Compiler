@@ -31,12 +31,11 @@ JUNK
 
 prog: blocks
 blocks: block | blocks block
-block: mexpr | cdtnl {printf("\tendif:\n");} | wstmt {printf("\tendw:\n");}
+block: mexpr | iestmt {printf("\tendif:\n");} | wstmt {printf("\tendw:\n");}
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 
-mexprs: mexpr | mexprs mexpr
 mexpr: asign stmts endop {printf("MOV %s R1\n", varname);}
 asign: VAR ASIGN
 stmts: stmt | stmts stmt
@@ -65,15 +64,22 @@ eqstmt: eqxpress
 
 if: IF val {printf("MOV R8 %s\n", varname);}
 ifparams: if eqstmt THEN nwln {printf("CMP R7\n"); printf("%s else%d\n", branch, ifnum); currentif = ifnum;}
-ifexpress: ifparams mexprs {printf("\telse%d: \n", currentif);}
+ifexpress: ifparams blocks {printf("\telse%d: \n", currentif);}
 
-endelse: ELSE nwln 
-elsexpress: endelse mexprs {printf("\telse%d: \n", currentif);}
+elseif: ELSE IF val
+elseifparams: elseif eqstmt THEN nwln
+elseifexpress: elseifparams blocks
+elseifexpressns: elseifexpress | elseifexpressns elseifexpress
 
-ifstmt: ifexpress | ELSE ifexpress 
-ifstmts: ifstmt | ifstmts ifstmt
+else: ELSE nwln 
+elsexpress: else blocks {printf("\telse%d: \n", currentif);}
+/* 
+iexpressns: iexpress | iexpressns iexpress
+iexpress: ifexpress | ELSE ifexpress {printf("\telse%d: \n", currentif); printf("MOV R8 %s\n", varname);} */
 
-cdtnl: ifstmts ENDIF endop | ifstmts elsexpress ENDIF endop 
+iestmt: ifexpress ENDIF endop | ifexpress elseifexpressns elsexpress ENDIF endop | ifexpress elsexpress ENDIF endop
+
+//cdtnl: ifstmt ENDIF endop | ifstmt elsexpress ENDIF endop
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
