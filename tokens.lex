@@ -7,7 +7,9 @@ extern int lineno;
 extern int numval;
 extern int wnum;
 extern int ifnum;
+extern int currentif;
 extern char varname[];
+extern char branch[];
 
 %}
 %%
@@ -27,12 +29,13 @@ extern char varname[];
 
 "&&" return AND;
 "||" return OR;
-"!=" return NOTEQ;
-"==" return EQUAL;
-"<"  return LTHAN;
-"<=" return LTOREQ;
-">"  return GTHAN;
-">=" return GTOREQ;
+
+"!=" {strcpy(branch, "BNE"); return NOTEQ;}
+"==" {strcpy(branch, "BEQ"); return EQUAL;}
+"<"  {strcpy(branch, "BLT"); return LTHAN;}
+"<=" {strcpy(branch, "BLE"); return LTOREQ;}
+">"  {strcpy(branch, "BGT"); return GTHAN;}
+">=" {strcpy(branch, "GTE"); return GTOREQ;}
 
 "=" return ASIGN;
 "+" return ADD;

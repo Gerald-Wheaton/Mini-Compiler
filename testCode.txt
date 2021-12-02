@@ -1,2 +1,5 @@
-boil = 1;
-steve = 8 + 10;
+if boil == 1 then
+   steve = 8 + 10;
+else
+   j = 4;
+endif;

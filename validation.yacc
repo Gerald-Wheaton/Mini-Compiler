@@ -8,9 +8,11 @@ int lineno = 1;
 int numval = 0;
 int wnum = 0;
 int ifnum = 0;
+int currentif = 0;
 
 char varname[20];
 char destination[20];
+char branch[10];
 
 %}
 
@@ -29,7 +31,7 @@ JUNK
 
 prog: blocks
 blocks: block | blocks block
-block: mexpr | cdtnl | wstmt
+block: mexpr | cdtnl {printf("\tend\n");} | wstmt
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
@@ -46,39 +48,39 @@ stmt: ADD val {printf("ADD R1, %s\n", varname);} |
   num {printf("MOV R1, %d\n", numval);}
 
 num: NUM
-val: VAR //| NUM 
-//op: ADD | MINUS
+val: VAR
 nwln: RETURN
 endop: SEMI RETURN
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 
-equalities: EQUAL | NOTEQ | LTHAN | LTOREQ | GTHAN | GTOREQ 
-lgcl: AND | OR 
-eqxpress: val equalities val | val equalities num
-eqstmt: eqxpress | lgcl eqxpress 
-eqstmts: eqstmt | eqstmts eqstmt
+equalities: EQUAL | NOTEQ | LTHAN | LTOREQ |  GTHAN | GTOREQ 
+eqxpress: equalities val {printf("MOV R7 %s\n", varname);} | 
+  equalities num {printf("MOV R7 %d\n", numval);}
+eqstmt: eqxpress
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 
-if: IF eqstmts THEN nwln
-ifexpress: if mexprs
-else: ELSE nwln
-elsexpress: else mexprs
+if: IF val {printf("MOV R8 %s\n", varname);}
+ifparams: if eqstmt THEN nwln {printf("CMP R7\n"); printf("%s else%d\n", branch, ifnum); currentif = ifnum;}
+ifexpress: ifparams mexprs //{printf("JMP end%d\n", currentif);}
 
-ifstmt: ifexpress | ELSE ifexpress
+endelse: ELSE nwln 
+elsexpress: endelse mexprs //{printf("JMP end%d\n", currentif);}
+
+ifstmt: ifexpress {printf("\telse%d: \n", currentif);} /*{printf("JMP end%d\n", currentif);}*/ | ELSE ifexpress {printf("\telse%d: \n", currentif);}//{printf("%s else%d\n", branch, ifnum);}
 ifstmts: ifstmt | ifstmts ifstmt
 
-cdtnl: ifstmts ENDIF endop {printf("valid if-then statement \n");}
-| ifstmts elsexpress ENDIF endop {printf("valid if-then-else statement \n");}
+cdtnl: ifstmts ENDIF endop
+| ifstmts elsexpress ENDIF endop 
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 
-while: WHILE eqstmts DO nwln
-wstmt: while blocks ENDWHILE endop {printf("valid while loop \n");}
+while: WHILE eqstmt DO nwln
+wstmt: while blocks ENDWHILE endop
 
 %%
 
