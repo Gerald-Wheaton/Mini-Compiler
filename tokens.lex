@@ -7,9 +7,12 @@ extern int lineno;
 extern int numval;
 extern int wnum;
 extern int ifnum;
+extern int elsenum;
 extern int currentif;
+
 extern char varname[];
 extern char branch[];
+extern char errinput[];
 
 %}
 %%
@@ -20,15 +23,12 @@ extern char branch[];
 
 "if" {ifnum++; return IF;}
 "then" return THEN;
-"else" return ELSE;
-"endif" {ifnum--; return ENDIF;}
+"else" {elsenum++; return ELSE;}
+"endif" {return ENDIF;}
 
 [0-9]+ {numval=atoi(yytext); return NUM;}
 
 [a-zA-Z]+ {strcpy(varname, yytext); return VAR;}
-
-"&&" return AND;
-"||" return OR;
 
 "!=" {strcpy(branch, "BNE"); return NOTEQ;}
 "==" {strcpy(branch, "BEQ"); return EQUAL;}
@@ -46,6 +46,6 @@ extern char branch[];
 
 \n {lineno++; return RETURN; }
 
-. return JUNK;
+. {strcpy(errinput, yytext); return JUNK;}
 
 %%
