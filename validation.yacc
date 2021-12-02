@@ -20,14 +20,15 @@ JUNK
 
 %%
 
-/* print success after returns??*/
+prog: blocks
+blocks: block | blocks block
+block: mexpr | cdtnl | wstmt
 
-prog: blocks | mexprs
-blocks: block | block blocks
-block: cdtnl | wxpress | mexprs cdtnl | mexprs wxpress
+//----------------------------------------------------------------
+//----------------------------------------------------------------
 
 mexprs: mexpr | mexprs mexpr
-mexpr: asign stmts endop {printf("valid assignment");}
+mexpr: asign stmts endop {printf("valid assignment \n");}
 asign: val ASIGN
 stmts: stmt | stmts stmt
 stmt: val op | val
@@ -37,11 +38,17 @@ op: ADD | MINUS
 nwln: RETURN
 endop: SEMI RETURN
 
+//----------------------------------------------------------------
+//----------------------------------------------------------------
+
 equalities: EQUAL | NOTEQ | LTHAN | LTOREQ | GTHAN | GTOREQ 
 lgcl: AND | OR 
 eqxpress: val equalities val
 eqstmt: eqxpress | lgcl eqxpress 
-eqstmts: eqstmt | eqstmt eqstmts 
+eqstmts: eqstmt | eqstmts eqstmt
+
+//----------------------------------------------------------------
+//----------------------------------------------------------------
 
 if: IF eqstmts THEN nwln
 ifexpress: if mexprs
@@ -51,12 +58,14 @@ elsexpress: else mexprs
 ifstmt: ifexpress | ELSE ifexpress
 ifstmts: ifstmt | ifstmts ifstmt
 
-cdtnl: ifstmts ENDIF endop | ifstmts elsexpress ENDIF endop
+cdtnl: ifstmts ENDIF endop {printf("valid if-then statement \n");}
+| ifstmts elsexpress ENDIF endop {printf("valid if-then-else statement \n");}
 
-//TODOs: handle nested ifs... I think the current while handles nested whiles but double check that
+//----------------------------------------------------------------
+//----------------------------------------------------------------
 
 while: WHILE eqstmts DO nwln
-wxpress: while mexprs ENDWHILE endop | while cdtnl ENDWHILE endop | while mexprs cdtnl ENDWHILE endop
+wstmt: while blocks ENDWHILE endop {printf("valid while loop \n");}
 
 %%
 
