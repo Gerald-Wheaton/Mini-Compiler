@@ -1,13 +1,7 @@
-total = 0;
-fib = 5;
-while fib > 0 do
-   total = total + fib;
-   fib = fib - 1;
-   if temp > 212 then
-    boil = 1;
-   else if temp <= 32 then
-       ice = 1;
-   else 
-      water = 1;
+while a < b do
+   if foo > bar then
+      bob = fred + 99;
+   else
+      bob = 37;
    endif;
 endwhile;
