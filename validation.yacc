@@ -22,15 +22,18 @@ JUNK
 
 /* print success after returns??*/
 
-prog: blocks | stmts
-blocks: block | block blocks | nwln block
-block: cdtnl | wxpress | stmts cdtnl | stmts wxpress
+prog: blocks | mexprs
+blocks: block | block blocks
+block: cdtnl | wxpress | mexprs cdtnl | mexprs wxpress
+
+mexprs: mexpr | mexprs mexpr
+mexpr: asign stmts endop {printf("valid assignment");}
+asign: val ASIGN
 stmts: stmt | stmts stmt
-stmt: val op | val endop | err
-err: JUNK
+stmt: val op | val
 
 val: VAR | NUM 
-op: ADD | MINUS | ASIGN 
+op: ADD | MINUS
 nwln: RETURN
 endop: SEMI RETURN
 
@@ -41,9 +44,9 @@ eqstmt: eqxpress | lgcl eqxpress
 eqstmts: eqstmt | eqstmt eqstmts 
 
 if: IF eqstmts THEN nwln
-ifexpress: if stmts
+ifexpress: if mexprs
 else: ELSE nwln
-elsexpress: else stmts
+elsexpress: else mexprs
 
 ifstmt: ifexpress | ELSE ifexpress
 ifstmts: ifstmt | ifstmts ifstmt
@@ -53,7 +56,7 @@ cdtnl: ifstmts ENDIF endop | ifstmts elsexpress ENDIF endop
 //TODOs: handle nested ifs... I think the current while handles nested whiles but double check that
 
 while: WHILE eqstmts DO nwln
-wxpress: while stmts ENDWHILE endop | while cdtnl ENDWHILE endop | while stmts cdtnl ENDWHILE endop
+wxpress: while mexprs ENDWHILE endop | while cdtnl ENDWHILE endop | while mexprs cdtnl ENDWHILE endop
 
 %%
 
