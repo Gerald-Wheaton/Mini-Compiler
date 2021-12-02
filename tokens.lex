@@ -5,10 +5,8 @@
 
 extern int lineno;
 extern int numval;
-extern int wnum;
-extern int ifnum;
+extern int openclause;
 extern int elsenum;
-extern int currentif;
 
 extern char varname[];
 extern char branch[];
@@ -17,14 +15,14 @@ extern char errinput[];
 %}
 %%
 
-"while" {wnum++; return WHILE;}
+"while" {openclause++; return WHILE;}
 "do" return DO;
-"endwhile" {wnum--; return ENDWHILE;}
+"endwhile" {openclause--; return ENDWHILE;}
 
-"if" {ifnum++; return IF;}
+"if" {openclause++; return IF;}
 "then" return THEN;
 "else" {elsenum++; return ELSE;}
-"endif" {return ENDIF;}
+"endif" {openclause--; return ENDIF;}
 
 [0-9]+ {numval=atoi(yytext); return NUM;}
 

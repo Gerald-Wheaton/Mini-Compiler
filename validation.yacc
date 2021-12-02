@@ -8,13 +8,10 @@ void yyerror(char *);
 
 int lineno = 1;
 int numval = 0;
-int wnum = 0;
-int ifnum = 0;
+int openclause = 0;
 int elsenum = 0;
-int currentif = 0;
 
 char varname[20];
-char destination[20];
 char branch[10];
 char errinput[10];
 
@@ -34,42 +31,42 @@ JUNK
 
 prog: blocks
 blocks: block | blocks block
-block: mexpr | iestmt {printf("\tendif:\n");} | wstmt {printf("\tendw:\n");}
+block: mexpr | iestmt {printf("end%d:\n", openclause);} | wstmt {printf("end%d:\n", openclause);}
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 
-mexpr: asign stmts endop {printf("MOV %s R1\n", varname);}
+mexpr: asign stmts endop {printf("\tMOV %s R1\n", varname);}
 asign: VAR ASIGN
 stmts: stmt | stmts stmt
-stmt: ADD val {printf("ADD R1, %s\n", varname);} | 
-  MINUS val {printf("SUB R1, %s\n", varname);} | 
-  val {printf("MOV R1, %s\n", varname);} | 
-  ADD num {printf("ADD R1, %d\n", numval);} | 
-  MINUS num {printf("SUB R1, %d\n", numval);} | 
-  num {printf("MOV R1, %d\n", numval);}
+stmt: ADD val {printf("\tADD R1, %s\n", varname);} | 
+  MINUS val {printf("\tSUB R1, %s\n", varname);} | 
+  val {printf("\tMOV R1, %s\n", varname);} | 
+  ADD num {printf("\tADD R1, %d\n", numval);} | 
+  MINUS num {printf("\tSUB R1, %d\n", numval);} | 
+  num {printf("\tMOV R1, %d\n", numval);}
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 
 equalities: EQUAL | NOTEQ | LTHAN | LTOREQ |  GTHAN | GTOREQ 
-eqxpress: equalities val {printf("MOV R7 %s\n", varname);} | 
-  equalities num {printf("MOV R7 %d\n", numval);}
+eqxpress: equalities val {printf("\tMOV R7 %s\n", varname);} | 
+  equalities num {printf("\tMOV R7 %d\n", numval);}
 eqstmt: eqxpress
 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 
-if: IF val {printf("MOV R8 %s\n", varname);}
-ifparams: if eqstmt THEN nwln {printf("CMP R7\n"); printf("%s else%d\n", branch, ifnum); currentif = ifnum;}
+if: IF val {printf("\tMOV R8 %s\n", varname);}
+ifparams: if eqstmt THEN nwln {printf("\tCMP R7\n"); printf("\t%s else%d\n", branch, openclause);}
 ifexpress: ifparams blocks 
 
-elseif: ELSE IF val {printf("\telse%d: \n", elsenum);}
-elseifparams: elseif eqstmt THEN nwln {printf("CMP R7\n"); printf("%s else%d\n", branch, ifnum);}
+elseif: ELSE IF val {printf("else%d: \n", elsenum);}
+elseifparams: elseif eqstmt THEN nwln {printf("\tCMP R7\n"); printf("\t%s else%d\n", branch, openclause);}
 elseifxpress: elseifparams blocks
 elseifxpressns: elseifxpress | elseifxpressns elseifxpress
 
-else: ELSE nwln {printf("\telse%d: \n", elsenum);}
+else: ELSE nwln {printf("else%d: \n", elsenum);}
 elsexpress: else blocks
 
 iestmt: ifexpress ENDIF endop | ifexpress elseifxpressns elsexpress ENDIF endop | ifexpress elsexpress ENDIF endop
@@ -77,9 +74,9 @@ iestmt: ifexpress ENDIF endop | ifexpress elseifxpressns elsexpress ENDIF endop 
 //----------------------------------------------------------------
 //----------------------------------------------------------------
 
-while: WHILE val {printf("\twtop: "); printf("MOV R8 %s\n", varname);}
-whileparams: while eqstmt DO nwln {printf("CMP R7\n"); printf("%s end%d\n", branch, wnum);}
-wexpress: whileparams blocks {printf("JMP wtop\n");}
+while: WHILE val {printf("wtop%d: ", openclause); printf("MOV R8 %s\n", varname);}
+whileparams: while eqstmt DO nwln {printf("\tCMP R7\n"); printf("\t%s end%d\n", branch, openclause);}
+wexpress: whileparams blocks {printf("\tJMP wtop%d\n", openclause);}
 wstmt: wexpress ENDWHILE endop
 
 //----------------------------------------------------------------
